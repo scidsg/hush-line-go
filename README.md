@@ -14,6 +14,6 @@ This device displays the encoded URL for your main Hush Line app, instructions, 
 
 And since this device only points to your main Hush Line app and contains no sensitive data, you don't have to worry if you lose it.
 
-Clip it to your bag, carry it on a keychain, or wear it around your neck,
+Clip it to your bag, carry it on a keychain, or wear it around your neck to take Hush Line with you where ever you go.
 
 ![IMG_4891](https://github.com/scidsg/hush-line-go/assets/28545431/c5fa2fe7-0871-42a3-808d-3e4a80caf3c3)
