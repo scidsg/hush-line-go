@@ -17,16 +17,6 @@ sleep 3
 sudo apt-get update && sudo apt-get -y dist-upgrade
 sudo apt-get -y install python3-pip fonts-dejavu python3-pillow unattended-upgrades
 
-# Welcome Prompt
-whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates with the Raspberry Pi using the SPI interface, so you need to enable it.\n\nNavigate to \"Interface Options\" > \"SPI\" and select \"Yes\" to enable the SPI interface." 12 64
-sudo raspi-config
-
-# Create a new non-root user for the application
-adduser --disabled-password --gecos "" hushlineuser
-
-# Change to the new user's home directory
-cd /home/hushlineuser
-
 # Install the Adafruit EPD library and other packages
 sudo pip3 install adafruit-circuitpython-epd qrcode pgpy requests python-gnupg
 
@@ -46,16 +36,16 @@ if ! [[ $PGP_KEY_ADDRESS =~ ^http(s)?:// ]]; then
 fi
 
 # Download the key and rename to public_key.asc
-mkdir -p /home/hushlineuser/hush-line/
-wget $PGP_KEY_ADDRESS -O /home/hushlineuser/hush-line/public_key.asc
+mkdir -p /home/pi/hush-line/
+wget $PGP_KEY_ADDRESS -O /home/pi/hush-line/public_key.asc
 
 # Write the Hush Line address and PGP key address to a config file
-echo "HUSH_LINE_ADDRESS=$HUSH_LINE_ADDRESS" > /home/hushlineuser/hush-line/config.txt
-echo "PGP_KEY_ADDRESS=$PGP_KEY_ADDRESS" >> /home/hushlineuser/hush-line/config.txt
+echo "HUSH_LINE_ADDRESS=$HUSH_LINE_ADDRESS" > /home/pi/hush-line/config.txt
+echo "PGP_KEY_ADDRESS=$PGP_KEY_ADDRESS" >> /home/pi/hush-line/config.txt
 
 # Create a new script to display status on the e-ink display
 # Create the hush-line directory if it does not exist
-cat > /home/hushlineuser/hush-line/app_status.py << EOL
+cat > /home/pi/hush-line/app_status.py << EOL
 import digitalio
 import busio
 import board
@@ -103,9 +93,9 @@ def get_key_info(file_path):
         exp_date = key.expires_at.strftime("%Y-%m-%d")
     return user_id, key_id, exp_date
 
-user_id, key_id, exp_date = get_key_info("/home/hushlineuser/hush-line/public_key.asc")
+user_id, key_id, exp_date = get_key_info("/home/pi/hush-line/public_key.asc")
 
-with open("/home/hushlineuser/hush-line/config.txt") as f:
+with open("/home/pi/hush-line/config.txt") as f:
     lines = f.readlines()
 hush_line_address = lines[0].split("=")[1].strip()
 pgp_key_address = lines[1].split("=")[1].strip()
@@ -125,7 +115,7 @@ last_seen_hush_line = datetime.datetime.now()
 
 # Display splash screen
 script_path = os.path.dirname(os.path.realpath(__file__))
-splash_screen_path = os.path.join(script_path, '/home/hushlineuser/hush-line/splash-sm.png')  # replace with the path to your splash screen
+splash_screen_path = os.path.join(script_path, '/home/pi/hush-line/splash-sm.png')  # replace with the path to your splash screen
 display_splash_screen(display, splash_screen_path, 3)  # display splash screen for 3 seconds
 
 while True:
@@ -241,12 +231,12 @@ Description=Hush Line Display Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/hushlineuser/hush-line/app_status.py
-WorkingDirectory=/home/hushlineuser/hush-line
+ExecStart=/usr/bin/python3 /home/pi/hush-line/app_status.py
+WorkingDirectory=/home/pi/hush-line
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User=hushlineuser
+User=pi
 
 [Install]
 WantedBy=multi-user.target
@@ -256,7 +246,7 @@ sudo systemctl start app-status
 sudo systemctl enable app-status
 
 # Download splash screen image
-cd /home/hushlineuser/hush-line
+cd /home/pi/hush-line
 wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash-sm.png
 
 # Enable the "security" and "updates" repositories
@@ -273,11 +263,6 @@ echo 'Unattended-Upgrade::Automatic-Reboot-Time "02:00";' | sudo tee -a /etc/apt
 
 sudo systemctl restart unattended-upgrades
 sudo apt-get -y autoremove
-
-# Add a line to the .bashrc to run the display_status.py script on boot
-if ! grep -q "sudo python3 /home/hushlineuser/hush-line/app_status.py" /home/hushlineuser/.bashrc; then
-    echo "sudo python3 /home/hushlineuser/hush-line/app_status.py &" >> /home/hushlineuser/.bashrc
-fi
 
 echo "Automatic updates have been installed and configured."
 
