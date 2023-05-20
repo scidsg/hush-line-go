@@ -6,34 +6,28 @@ cat << "EOF"
   / // / __ __  ___  / /        / /   (_)  ___  ___       / ___/ ___ 
  / _  / / // / (_-< / _ \      / /__ / /  / _ \/ -_)     / (_ / / _ \
 /_//_/  \_,_/ /___//_//_/     /____//_/  /_//_/\__/      \___/  \___/
-                                                                                                                           
-🤫 A free tool by Science & Design - https://scidsg.org
-Your anonymous tip line and suggestion box. 
+
+🤫 The Companion To Your Private Tip Line
+https://hushline.app
 
 EOF
 sleep 3
 
-# Install the necessary dependencies
-sudo apt-get update && sudo apt-get -y dist-upgrade
-sudo apt-get -y install python3-pip fonts-dejavu python3-pillow unattended-upgrades
+# Welcome Prompt
+whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates with the Raspberry Pi using the SPI interface, so you need to enable it.\n\nNavigate to \"Interface Options\" > \"SPI\" and select \"Yes\" to enable the SPI interface." 12 64
+sudo raspi-config
 
-# Install the Adafruit EPD library and other packages
+# Install the necessary dependencies
+sudo apt-get update 
+sudo apt-get -y dist-upgrade
+sudo apt-get -y install python3-pip fonts-dejavu python3-pillow
+
+# Install the Adafruit EPD library
 sudo pip3 install adafruit-circuitpython-epd qrcode pgpy requests python-gnupg
 
 # Ask the user for the Hush Line address and PGP key address
 HUSH_LINE_ADDRESS=$(whiptail --inputbox "What's the Hush Line address?" 8 78 --title "Hush Line address" 3>&1 1>&2 2>&3)
-
-# Validate that 'http://' or 'https://' is present in the HUSH_LINE_ADDRESS
-until [[ $HUSH_LINE_ADDRESS =~ ^http(s)?:// ]]; do
-    HUSH_LINE_ADDRESS=$(whiptail --inputbox "Invalid URL format. Please enter a valid URL including http:// or https:// :" 8 78 --title "Hush Line address" 3>&1 1>&2 2>&3)
-done
-
 PGP_KEY_ADDRESS=$(whiptail --inputbox "What's the address for your PGP key?" 8 78 --title "PGP key address" 3>&1 1>&2 2>&3)
-
-# Add 'https://' to the PGP_KEY_ADDRESS if it doesn't already begin with 'http://' or 'https://'
-if ! [[ $PGP_KEY_ADDRESS =~ ^http(s)?:// ]]; then
-    PGP_KEY_ADDRESS="https://$PGP_KEY_ADDRESS"
-fi
 
 # Download the key and rename to public_key.asc
 mkdir -p /home/pi/hush-line/
@@ -249,22 +243,7 @@ sudo systemctl enable app-status
 cd /home/pi/hush-line
 wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash-sm.png
 
-# Enable the "security" and "updates" repositories
-sudo sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-security";/"\${distro_id}:\${distro_codename}-security";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-sudo sed -i 's/\/\/\s\+"\${distro_id}:\${distro_codename}-updates";/"\${distro_id}:\${distro_codename}-updates";/g' /etc/apt/apt.conf.d/50unattended-upgrades
-sudo sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
-sudo sed -i 's|//\s*Unattended-Upgrade::Remove-Unused-Dependencies "true";|Unattended-Upgrade::Remove-Unused-Dependencies "true";|' /etc/apt/apt.conf.d/50unattended-upgrades
-
-sudo dpkg-reconfigure --priority=low unattended-upgrades
-
-# Configure unattended-upgrades
-echo 'Unattended-Upgrade::Automatic-Reboot "true";' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
-echo 'Unattended-Upgrade::Automatic-Reboot-Time "02:00";' | sudo tee -a /etc/apt/apt.conf.d/50unattended-upgrades
-
-sudo systemctl restart unattended-upgrades
 sudo apt-get -y autoremove
-
-echo "Automatic updates have been installed and configured."
 
 echo "✅ E-ink display configuration complete. Rebooting your Raspberry Pi..."
 sleep 3
