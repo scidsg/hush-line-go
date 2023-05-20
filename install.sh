@@ -17,6 +17,10 @@ sleep 3
 sudo apt-get update && sudo apt-get -y dist-upgrade
 sudo apt-get -y install python3-pip fonts-dejavu python3-pillow unattended-upgrades
 
+# Welcome Prompt
+whiptail --title "E-Ink Display Setup" --msgbox "The e-paper hat communicates with the Raspberry Pi using the SPI interface, so you need to enable it.\n\nNavigate to \"Interface Options\" > \"SPI\" and select \"Yes\" to enable the SPI interface." 12 64
+sudo raspi-config
+
 # Create a new non-root user for the application
 adduser --disabled-password --gecos "" hushlineuser
 
