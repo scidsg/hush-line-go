@@ -274,6 +274,11 @@ echo 'Unattended-Upgrade::Automatic-Reboot-Time "02:00";' | sudo tee -a /etc/apt
 sudo systemctl restart unattended-upgrades
 sudo apt-get -y autoremove
 
+# Add a line to the .bashrc to run the display_status.py script on boot
+if ! grep -q "sudo python3 /home/hushlineuser/hush-line/app_status.py" /home/hushlineuser/.bashrc; then
+    echo "sudo python3 /home/hushlineuser/hush-line/app_status.py &" >> /home/hushlineuser/.bashrc
+fi
+
 echo "Automatic updates have been installed and configured."
 
 echo "✅ E-ink display configuration complete. Rebooting your Raspberry Pi..."
