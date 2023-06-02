@@ -109,7 +109,7 @@ last_seen_hush_line = datetime.datetime.now()
 
 # Display splash screen
 script_path = os.path.dirname(os.path.realpath(__file__))
-splash_screen_path = os.path.join(script_path, '/home/pi/hush-line/splash-sm.png')  # replace with the path to your splash screen
+splash_screen_path = os.path.join(script_path, '/home/pi/hush-line/splash.png')  # replace with the path to your splash screen
 display_splash_screen(display, splash_screen_path, 3)  # display splash screen for 3 seconds
 
 while True:
@@ -241,7 +241,7 @@ sudo systemctl enable app-status
 
 # Download splash screen image
 cd /home/pi/hush-line
-wget https://raw.githubusercontent.com/scidsg/brand-resources/main/logos/splash-sm.png
+wget https://raw.githubusercontent.com/scidsg/hush-line-go/main/splash.png
 
 sudo apt-get -y autoremove
 
