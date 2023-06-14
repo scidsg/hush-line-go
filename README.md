@@ -1,5 +1,5 @@
 # Hush Line Go
-Take Hush Line Go with you when you're on the move to make sharing your address easy. With the e-paper display, once the text is written, it will remain indefinitely without requiring power.
+For increased threat models where someone might want to set up a Hush Line instance without sharing publicly, Hush Line Go is a device you take with you while your server is safely running somewhere else. It checks your server's uptime and displays the same relevant information for submitting a private message. 
 
 Supported display:
 [Adafruit 2.13" Monochrome E-Ink Bonnet](https://www.adafruit.com/product/4687)
